@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Jellyfin.Data.Enums;                     // BaseItemKind
+using Jellyfin.Plugin.PosterRotator.Configuration;
 using MediaBrowser.Controller.Entities;        // BaseItem
 using MediaBrowser.Controller.Entities.Movies; // Movie
 using MediaBrowser.Controller.Library;         // ILibraryManager, InternalItemsQuery
@@ -42,7 +43,7 @@ namespace Jellyfin.Plugin.PosterRotator
             _log = log;
         }
 
-        public async Task RunAsync(Configuration cfg, IProgress<double>? progress, CancellationToken ct)
+        public async Task RunAsync(PluginConfiguration cfg, IProgress<double>? progress, CancellationToken ct)
         {
             var q = new InternalItemsQuery
             {
@@ -103,7 +104,7 @@ namespace Jellyfin.Plugin.PosterRotator
         }
 
         // returns true if we actually overwrote the current poster
-        private async Task<bool> ProcessMovieAsync(Movie movie, Configuration cfg, CancellationToken ct, IDictionary<string,int> dirCounts)
+        private async Task<bool> ProcessMovieAsync(Movie movie, PluginConfiguration cfg, CancellationToken ct, IDictionary<string, int> dirCounts)
         {
             var movieDir = GetMovieDir(movie);
             if (string.IsNullOrEmpty(movieDir) || !Directory.Exists(movieDir))
@@ -260,7 +261,7 @@ namespace Jellyfin.Plugin.PosterRotator
 
         // --- Provider top-up via DI (instrumented + smarter) ---
         private async Task<List<string>> TryTopUpFromProvidersDIAsync(
-            Movie movie, string poolDir, int needed, Configuration cfg, CancellationToken ct)
+            Movie movie, string poolDir, int needed, PluginConfiguration cfg, CancellationToken ct)
         {
             var added = new List<string>();
             try
@@ -394,7 +395,7 @@ namespace Jellyfin.Plugin.PosterRotator
             }
 
             async Task TryDownloadRemote(RemoteImageInfo info,
-                                        Movie mv, string dir, Configuration c,
+                                        Movie mv, string dir, PluginConfiguration c,
                                         CancellationToken token, List<string> bucket)
             {
                 if (info == null) return;
@@ -504,7 +505,7 @@ namespace Jellyfin.Plugin.PosterRotator
 
         // --- Provider top-up via REFLECTION (robust + logging) ---
         private async Task<List<string>> TryTopUpFromProvidersReflectionAsync(
-            Movie movie, string poolDir, int needed, Configuration cfg, CancellationToken ct)
+            Movie movie, string poolDir, int needed, PluginConfiguration cfg, CancellationToken ct)
         {
             var added = new List<string>();
             try
@@ -669,7 +670,7 @@ namespace Jellyfin.Plugin.PosterRotator
                 Movie movie2,
                 string poolDir2,
                 int toTake,
-                Configuration cfg2,
+                PluginConfiguration cfg2,
                 CancellationToken ct2,
                 List<string> added2)
             {
@@ -734,7 +735,7 @@ namespace Jellyfin.Plugin.PosterRotator
 
         private static string GetMovieDir(Movie movie) => ResolveMovieDirectory(movie);
 
-        private static bool IsMixedFolder(Movie movie, IDictionary<string,int> dirCounts)
+        private static bool IsMixedFolder(Movie movie, IDictionary<string, int> dirCounts)
         {
             var dir = Path.GetDirectoryName(movie.Path ?? string.Empty) ?? string.Empty;
             return !string.IsNullOrEmpty(dir)
@@ -770,7 +771,7 @@ namespace Jellyfin.Plugin.PosterRotator
             return Path.Combine(movieDir, $"{baseName}-poster{ext}");
         }
 
-        private static IEnumerable<string> GetPoolPatterns(Configuration cfg)
+        private static IEnumerable<string> GetPoolPatterns(PluginConfiguration cfg)
         {
             var patterns = new List<string>();
             if (cfg.ExtraPosterPatterns != null)
@@ -780,7 +781,7 @@ namespace Jellyfin.Plugin.PosterRotator
             {
                 "*.jpg","*.jpeg","*.png","*.webp","*.gif",
                 "poster*.jpg","poster*.jpeg","poster*.png","poster*.webp","poster*.gif",
-                "*-poster*.jpg","*-poster*.jpeg","*-poster*.png","*-poster*.webp","*-poster*.gif" 
+                "*-poster*.jpg","*-poster*.jpeg","*-poster*.png","*-poster*.webp","*-poster*.gif"
             });
 
             return patterns.Distinct(StringComparer.OrdinalIgnoreCase);
@@ -831,7 +832,7 @@ namespace Jellyfin.Plugin.PosterRotator
         private static string PickNextFor(
             List<string> files,
             Movie movie,
-            Configuration cfg,
+            PluginConfiguration cfg,
             string poolDir,
             RotationState state)
         {
@@ -943,7 +944,7 @@ namespace Jellyfin.Plugin.PosterRotator
                 "image/png" => ".png",
                 "image/webp" => ".webp",
                 "image/jpeg" => ".jpg",
-                "image/gif"  => ".gif",  
+                "image/gif" => ".gif",
                 _ => null
             };
 

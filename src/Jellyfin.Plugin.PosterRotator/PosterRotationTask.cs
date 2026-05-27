@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Jellyfin.Plugin.PosterRotator.Configuration;
 
 namespace Jellyfin.Plugin.PosterRotator
 {
@@ -35,7 +36,7 @@ namespace Jellyfin.Plugin.PosterRotator
                 return;
             }
 
-            var cfg = plugin.Configuration ?? new Configuration();
+            var cfg = plugin.Configuration ?? new PluginConfiguration();
 
             try
             {
@@ -59,7 +60,7 @@ namespace Jellyfin.Plugin.PosterRotator
         {
             return new[]
             {
-                new TaskTriggerInfo { Type = TaskTriggerInfo.TriggerDaily, TimeOfDayTicks = TimeSpan.FromHours(3).Ticks }
+                new TaskTriggerInfo { Type = TaskTriggerInfoType.DailyTrigger , TimeOfDayTicks = TimeSpan.FromHours(3).Ticks }
             };
         }
     }

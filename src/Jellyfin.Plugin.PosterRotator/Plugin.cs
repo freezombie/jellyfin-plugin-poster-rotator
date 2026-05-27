@@ -5,10 +5,11 @@ using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Model.Plugins;
 using MediaBrowser.Model.Serialization;
+using Jellyfin.Plugin.PosterRotator.Configuration;
 
 namespace Jellyfin.Plugin.PosterRotator;
 
-public class Plugin : BasePlugin<Configuration>, IHasWebPages
+public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
 {
     public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer)
         : base(applicationPaths, xmlSerializer)
@@ -18,7 +19,7 @@ public class Plugin : BasePlugin<Configuration>, IHasWebPages
 
     public static Plugin? Instance { get; private set; }
 
-    public override string Name => "Poster Rotator"; 
+    public override string Name => "Poster Rotator";
     public override Guid Id => Guid.Parse("7f6eea8b-0e9c-4cbd-9d2a-31f9a37ce2b7");
 
     public IEnumerable<PluginPageInfo> GetPages() => new[]
